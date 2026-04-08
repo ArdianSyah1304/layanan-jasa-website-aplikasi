@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ardiansyah - Software Developer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+        .sidebar-active { background: #3b82f6; color: white; }
+        .loading-overlay { background: rgba(255,255,255,0.7); position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; }
+        /* Mobile View Optimization */
+        @media (max-width: 768px) {
+            .mobile-nav { bottom: 0; top: auto; border-top: 1px solid #e2e8f0; border-b: none; }
+            .dashboard-container { padding-bottom: 80px; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <div id="loader" class="hidden loading-overlay">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-600"></div>
+    </div>
+
+    <div id="landing-page" class="block">
+        <nav class="fixed w-full z-40 glass border-b border-slate-200 py-4 px-6 flex justify-between items-center">
+            <div class="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent uppercase">Ardiansyah.</div>
+            <div class="flex items-center gap-6">
+                <div class="hidden md:flex gap-6 font-medium text-slate-600">
+                    <a href="#home" class="hover:text-blue-600">Home</a>
+                    <a href="#layanan" class="hover:text-blue-600">Layanan</a>
+                    <a href="#harga" class="hover:text-blue-600">Harga</a>
+                </div>
+                <button onclick="showLogin()" class="text-slate-500 hover:text-blue-600 text-xl"><i class="fas fa-user-circle"></i></button>
+            </div>
+        </nav>
+
+        <section id="home" class="pt-32 pb-20 px-6 max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+            <div>
+                <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-6">Ubah Ide Bisnis Anda Menjadi <span class="text-blue-600">Aplikasi Premium</span></h1>
+                <p class="text-lg text-slate-600 mb-8 italic">Membangun solusi digital menggunakan Laravel, Node.js, dan React Native.</p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="#harga" class="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition">Mulai Proyek</a>
+                </div>
+            </div>
+            <div class="relative flex justify-center">
+                <img id="landing-photo" src="https://via.placeholder.com/400x500" class="rounded-3xl shadow-2xl w-full max-w-sm object-cover border-8 border-white">
+            </div>
+        </section>
+
+        <section id="harga" class="py-20 px-6 max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-12">Daftar Harga & Layanan</h2>
+            <div id="product-list-landing" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <p class="col-span-full text-center text-slate-400">Memuat layanan...</p>
+            </div>
+        </section>
+
+        <footer class="bg-slate-900 text-white py-12 px-6 text-center">
+            <p class="text-slate-500">© 2026 Ardiansyah. Developed with Passion.</p>
+        </footer>
+    </div>
+
+    <div id="login-section" class="hidden min-h-screen bg-slate-100 flex items-center justify-center p-6">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md">
+            <h2 class="text-2xl font-bold text-center mb-8">Admin Access</h2>
+            <div class="space-y-5">
+                <input type="text" id="user-in" placeholder="Username" class="w-full px-5 py-4 bg-slate-50 rounded-xl border focus:ring-2 focus:ring-blue-500 outline-none">
+                <input type="password" id="pass-in" placeholder="Password" class="w-full px-5 py-4 bg-slate-50 rounded-xl border focus:ring-2 focus:ring-blue-500 outline-none">
+                <button onclick="doLogin()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition">Login</button>
+                <button onclick="hideLogin()" class="w-full text-slate-400 py-2 text-sm">Kembali</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboard-section" class="hidden min-h-screen bg-slate-50 flex flex-col md:flex-row">
+        <aside class="w-full md:w-64 bg-slate-900 text-white p-6 md:fixed md:h-full z-50">
+            <h2 class="text-xl font-bold mb-10 text-blue-400">PANEL ARDI</h2>
+            <nav class="space-y-2">
+                <button onclick="showPanel('stats')" class="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-slate-800 sidebar-btn" id="btn-stats"><i class="fas fa-home"></i> Statistik</button>
+                <button onclick="showPanel('produk')" class="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-slate-800 sidebar-btn" id="btn-produk"><i class="fas fa-box"></i> Produk</button>
+                <button onclick="showPanel('message')" class="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-slate-800 sidebar-btn relative" id="btn-message">
+                    <i class="fas fa-envelope"></i> Message
+                    <span id="notif-count" class="hidden absolute right-4 top-4 bg-red-500 text-[10px] px-2 py-0.5 rounded-full">0</span>
+                </button>
+                <button onclick="showPanel('profil')" class="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-slate-800 sidebar-btn" id="btn-profil"><i class="fas fa-cog"></i> Pengaturan</button>
+                <button onclick="logout()" class="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-red-600 mt-10"><i class="fas fa-power-off"></i> Logout</button>
+            </nav>
+        </aside>
+
+        <main class="flex-1 md:ml-64 p-6 md:p-10 dashboard-container">
+            <header class="flex justify-between items-center mb-10 bg-white p-6 rounded-2xl shadow-sm border">
+                <h3 class="text-xl font-bold text-slate-700" id="panel-title">Statistik</h3>
+                <img id="admin-mini-photo" src="" class="w-10 h-10 rounded-full border-2 border-blue-500 object-cover">
+            </header>
+
+            <div id="p-stats" class="panel-item">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-blue-600 text-white p-8 rounded-3xl shadow-lg">
+                        <p class="opacity-80">Total Layanan</p>
+                        <h4 id="stat-total-prod" class="text-4xl font-bold">0</h4>
+                    </div>
+                    <div class="bg-indigo-600 text-white p-8 rounded-3xl shadow-lg">
+                        <p class="opacity-80">Pesan Masuk</p>
+                        <h4 id="stat-total-msg" class="text-4xl font-bold">0</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div id="p-produk" class="panel-item hidden">
+                <div class="bg-white rounded-3xl shadow-sm border overflow-hidden">
+                    <div class="p-6 border-b flex justify-between items-center">
+                        <h4 class="font-bold">Daftar Produk</h4>
+                        <button onclick="toggleModal('product-modal')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold">+ Tambah</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 text-slate-500 text-xs">
+                                <tr>
+                                    <th class="p-4">Produk</th>
+                                    <th class="p-4">Harga</th>
+                                    <th class="p-4">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-product-table" class="divide-y text-sm"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="p-message" class="panel-item hidden">
+                <div class="space-y-4" id="message-container">
+                    </div>
+            </div>
+
+            <div id="p-profil" class="panel-item hidden">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border">
+                        <h4 class="font-bold mb-6">Update Foto Profil</h4>
+                        <div class="flex items-center gap-6 mb-6">
+                            <img id="admin-preview-photo" src="" class="w-20 h-20 rounded-2xl object-cover">
+                            <input type="file" id="input-photo" class="text-xs">
+                        </div>
+                        <button onclick="saveProfilePhoto()" class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold">Simpan Foto</button>
+                    </div>
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border border-red-100">
+                        <h4 class="font-bold text-red-600 mb-4">Database Tools</h4>
+                        <div class="grid grid-cols-1 gap-4">
+                            <button onclick="resetDataPermanen()" class="w-full bg-red-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-red-700 transition">
+                                <i class="fas fa-trash-alt mr-2"></i> RESET DATA PERMANEN
+                            </button>
+                            <button onclick="exportToPDF()" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-green-700 transition">
+                                <i class="fas fa-file-pdf mr-2"></i> BACKUP PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="order-modal" class="hidden fixed inset-0 bg-slate-900/60 z-[70] flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-3xl w-full max-w-md">
+            <h3 class="text-2xl font-bold mb-2">Form Pemesanan</h3>
+            <p id="order-item-name" class="text-blue-600 font-semibold mb-6"></p>
+            <div class="space-y-4">
+                <input type="text" id="cust-name" placeholder="Nama Anda" class="w-full p-4 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="cust-phone" placeholder="WhatsApp (62...)" class="w-full p-4 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="flex gap-3 pt-4">
+                    <button onclick="toggleModal('order-modal')" class="flex-1 py-3 text-slate-400 font-bold">Batal</button>
+                    <button onclick="prosesOrder()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg">Kirim Pesan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="product-modal" class="hidden fixed inset-0 bg-slate-900/50 z-[60] flex items-center justify-center p-6">
+        <div class="bg-white p-8 rounded-3xl w-full max-w-sm">
+            <h3 class="text-xl font-bold mb-6">Data Layanan</h3>
+            <input type="hidden" id="edit-id">
+            <div class="space-y-4">
+                <input type="text" id="prod-name" placeholder="Nama Produk" class="w-full p-4 bg-slate-50 border rounded-xl outline-none">
+                <input type="number" id="prod-price" placeholder="Harga" class="w-full p-4 bg-slate-50 border rounded-xl outline-none">
+                <textarea id="prod-desc" placeholder="Keterangan" class="w-full p-4 bg-slate-50 border rounded-xl outline-none h-24"></textarea>
+                <div class="flex gap-3">
+                    <button onclick="toggleModal('product-modal')" class="flex-1 py-3 text-slate-400">Batal</button>
+                    <button onclick="saveProduct()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://sheetdb.io/api/v1/l0rrszda5pyj2";
+        let products = [];
+        let messages = JSON.parse(localStorage.getItem('ardi_messages')) || [];
+        let profilePic = localStorage.getItem('ardi_pfp') || 'https://via.placeholder.com/500';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData();
+            updateNotif();
+            // Handle Photo Preview
+            document.getElementById('input-photo').addEventListener('change', (e) => {
+                const reader = new FileReader();
+                reader.onload = () => document.getElementById('admin-preview-photo').src = reader.result;
+                reader.readAsDataURL(e.target.files[0]);
+            });
+        });
+
+        async function fetchData() {
+            setLoading(true);
+            try {
+                const res = await fetch(API_URL);
+                products = await res.json();
+                renderUI();
+            } catch (err) { console.error("Error load", err); }
+            setLoading(false);
+        }
+
+        function renderUI() {
+            // Landing Page Cards
+            document.getElementById('product-list-landing').innerHTML = products.map(p => `
+                <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                    <h4 class="text-lg font-bold">${p.name}</h4>
+                    <p class="text-blue-600 font-bold text-xl mb-3">Rp ${parseInt(p.price).toLocaleString('id-ID')}</p>
+                    <p class="text-slate-500 text-sm mb-6">${p.desc || '-'}</p>
+                    <button onclick="openOrderModal('${p.name}', ${p.price})" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-slate-900 transition">Pesan Sekarang</button>
+                </div>
+            `).join('');
+
+            // Dashboard Product Table
+            document.getElementById('admin-product-table').innerHTML = products.map(p => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-4 font-bold">${p.name}</td>
+                    <td class="p-4 text-blue-600 font-bold">Rp ${parseInt(p.price).toLocaleString('id-ID')}</td>
+                    <td class="p-4 flex gap-4">
+                        <button onclick="editProduct('${p.id}')" class="text-blue-500"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteProduct('${p.id}')" class="text-red-500"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Dashboard Message Center
+            const msgContainer = document.getElementById('message-container');
+            if (messages.length === 0) {
+                msgContainer.innerHTML = '<div class="text-center p-20 text-slate-400">Tidak ada pesan masuk.</div>';
+            } else {
+                msgContainer.innerHTML = messages.map((m, index) => `
+                    <div class="bg-white p-5 rounded-2xl border shadow-sm flex justify-between items-center">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">BARU</span>
+                                <span class="text-[10px] text-slate-400">${m.waktu}</span>
+                            </div>
+                            <h5 class="font-bold text-slate-800">${m.pembeli}</h5>
+                            <p class="text-sm text-slate-500 italic">Memesan: ${m.item}</p>
+                        </div>
+                        <button onclick="deleteMsg(${index})" class="text-slate-300 hover:text-red-500"><i class="fas fa-times-circle text-xl"></i></button>
+                    </div>
+                `).reverse().join('');
+            }
+
+            // Photo sync
+            document.getElementById('landing-photo').src = profilePic;
+            document.getElementById('admin-mini-photo').src = profilePic;
+            document.getElementById('admin-preview-photo').src = profilePic;
+            
+            // Stats sync
+            document.getElementById('stat-total-prod').innerText = products.length;
+            document.getElementById('stat-total-msg').innerText = messages.length;
+        }
+
+        // FUNGSI PESAN & WA
+        function openOrderModal(name, price) {
+            document.getElementById('order-item-name').innerText = name;
+            toggleModal('order-modal');
+        }
+
+        async function prosesOrder() {
+            const nama = document.getElementById('cust-name').value;
+            const hp = document.getElementById('cust-phone').value;
+            const item = document.getElementById('order-item-name').innerText;
+
+            if(!nama || !hp) return alert('Lengkapi data!');
+
+            const tgl = new Date().toLocaleString('id-ID');
+            
+            // Simpan ke Message Dashboard (Local)
+            messages.push({ pembeli: nama, item: item, waktu: tgl, hp: hp });
+            localStorage.setItem('ardi_messages', JSON.stringify(messages));
+
+            // Kirim ke WhatsApp
+            const waLink = `https://wa.me/6281959868364?text=Halo Ardiansyah, saya *${nama}* ingin memesan layanan *${item}*. Mohon info selanjutnya.`;
+            
+            alert('Pesanan diteruskan ke WhatsApp & Dashboard Admin!');
+            window.open(waLink, '_blank');
+            
+            toggleModal('order-modal');
+            updateNotif();
+            renderUI();
+        }
+
+        // RESET DATA PERMANEN (Sync ke API)
+        async function resetDataPermanen() {
+            if(!confirm("Hapus semua data produk di API SheetDB dan Pesan secara permanen?")) return;
+            
+            setLoading(true);
+            try {
+                // Hapus di API SheetDB (Gunakan endpoint /all jika didukung, atau hapus satu per satu)
+                // Catatan: SheetDB Gratis biasanya tidak mendukung DELETE ALL secara langsung via API.
+                // Jika tidak berhasil, kita hapus local saja & ingatkan user.
+                for (let p of products) {
+                    await fetch(`${API_URL}/id/${p.id}`, { method: 'DELETE' });
+                }
+                
+                messages = [];
+                localStorage.removeItem('ardi_messages');
+                alert('Database & Pesan berhasil dikosongkan!');
+                fetchData();
+            } catch (err) {
+                alert('Gagal menghapus data di API. Cek koneksi.');
+            }
+            setLoading(false);
+        }
+
+        // BACKUP PDF
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.text("BACKUP DATA LAYANAN - ARDIANSYAH", 14, 15);
+            
+            const rows = products.map(p => [p.name, `Rp ${p.price}`, p.desc]);
+            doc.autoTable({
+                head: [['Nama Produk', 'Harga', 'Keterangan']],
+                body: rows,
+                startY: 25
+            });
+
+            doc.save(`backup_database_${Date.now()}.pdf`);
+        }
+
+        // CRUD PRODUK
+        async function saveProduct() {
+            const name = document.getElementById('prod-name').value;
+            const price = document.getElementById('prod-price').value;
+            const desc = document.getElementById('prod-desc').value;
+            const id = document.getElementById('edit-id').value;
+
+            setLoading(true);
+            const data = { id: id || Date.now().toString(), name, price, desc };
+            
+            try {
+                if(!id) {
+                    await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ data: [data] })
+                    });
+                } else {
+                    await fetch(`${API_URL}/id/${id}`, {
+                        method: 'PATCH',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ data: { name, price, desc } })
+                    });
+                }
+                toggleModal('product-modal');
+                fetchData();
+            } catch (err) { alert('Gagal simpan!'); }
+            setLoading(false);
+        }
+
+        async function deleteProduct(id) {
+            if(!confirm('Hapus produk?')) return;
+            setLoading(true);
+            try {
+                await fetch(`${API_URL}/id/${id}`, { method: 'DELETE' });
+                fetchData();
+            } catch (err) { alert('Gagal hapus!'); }
+            setLoading(false);
+        }
+
+        function editProduct(id) {
+            const p = products.find(i => i.id === id);
+            if(!p) return;
+            document.getElementById('edit-id').value = p.id;
+            document.getElementById('prod-name').value = p.name;
+            document.getElementById('prod-price').value = p.price;
+            document.getElementById('prod-desc').value = p.desc;
+            toggleModal('product-modal');
+        }
+
+        // UI HELPERS
+        function updateNotif() {
+            const badge = document.getElementById('notif-count');
+            if (messages.length > 0) {
+                badge.innerText = messages.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function deleteMsg(index) {
+            messages.splice(index, 1);
+            localStorage.setItem('ardi_messages', JSON.stringify(messages));
+            renderUI();
+            updateNotif();
+        }
+
+        function showLogin() { 
+            document.getElementById('landing-page').classList.add('hidden'); 
+            document.getElementById('login-section').classList.remove('hidden'); 
+        }
+        function hideLogin() { 
+            document.getElementById('login-section').classList.add('hidden'); 
+            document.getElementById('landing-page').classList.remove('hidden'); 
+        }
+        function doLogin() {
+            if (document.getElementById('user-in').value === 'ardiansyah' && document.getElementById('pass-in').value === '13040005') {
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('dashboard-section').classList.remove('hidden');
+                showPanel('stats');
+            } else { alert('Akses Ditolak!'); }
+        }
+        function logout() { location.reload(); }
+        function setLoading(s) { document.getElementById('loader').classList.toggle('hidden', !s); }
+
+        function showPanel(id) {
+            document.querySelectorAll('.panel-item').forEach(p => p.classList.add('hidden'));
+            document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('sidebar-active'));
+            document.getElementById('p-' + id).classList.remove('hidden');
+            document.getElementById('btn-' + id).classList.add('sidebar-active');
+            document.getElementById('panel-title').innerText = id === 'message' ? 'Message Center' : id.charAt(0).toUpperCase() + id.slice(1);
+        }
+
+        function toggleModal(id) {
+            document.getElementById(id).classList.toggle('hidden');
+            if(id === 'product-modal') {
+                document.getElementById('edit-id').value = "";
+                document.getElementById('prod-name').value = "";
+                document.getElementById('prod-price').value = "";
+                document.getElementById('prod-desc').value = "";
+            }
+        }
+
+        function saveProfilePhoto() {
+            const pic = document.getElementById('admin-preview-photo').src;
+            localStorage.setItem('ardi_pfp', pic);
+            profilePic = pic;
+            renderUI();
+            alert('Foto Profil diperbarui!');
+        }
+    </script>
+</body>
+</html>
